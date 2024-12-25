@@ -5,11 +5,13 @@ public class Character : MonoBehaviour
     
     //thuộc tính cho phép update trên inspector cho lên đầu
     [SerializeField] private Animator Anim; 
+    [SerializeField] protected HealthBar HealthBar;
+    [SerializeField] private CombatText CombatTextPrefab;
     
     //ưu tiên theo mức độ truy cập
     private float HealthPoint;
     private string currentAnim;
-    private bool isDead => HealthPoint <= 0;
+    public bool isDead => HealthPoint <= 0;
 
     //Phương thức để kế thừa cho lên trc
 
@@ -20,7 +22,8 @@ public class Character : MonoBehaviour
     
     public virtual void OnInit()
     {
-        HealthPoint = 100;
+        HealthPoint = 150;
+        HealthBar.OnInit(HealthPoint, transform);
     }
 
     public virtual void OnDespawn()
@@ -31,7 +34,8 @@ public class Character : MonoBehaviour
     
     protected virtual void OnDeath()
     {
-        
+        ChangeAnim("Death");
+        Invoke("OnDespawn", 0.5f);
     }
     protected void ChangeAnim(string animName)
     {
@@ -50,8 +54,11 @@ public class Character : MonoBehaviour
         }
         else
         {
+            HealthPoint = 0;
             OnDeath();
         }
+        HealthBar.SetNewHP(HealthPoint);
+        Instantiate(CombatTextPrefab, transform.position + Vector3.up, Quaternion.identity).OnInit(Damage);
     }
 
     

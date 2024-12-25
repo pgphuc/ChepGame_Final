@@ -9,6 +9,7 @@ TagManager:
   - SavePos
   - Enemy
   - EnemyWall
+  - Kunai
   layers:
   - Default
   - TransparentFX
@@ -18,7 +19,7 @@ TagManager:
   - UI
   - Player
   - Enemy
-  - 
+  - Kunai
   - 
   - 
   - 

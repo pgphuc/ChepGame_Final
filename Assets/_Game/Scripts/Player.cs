@@ -5,7 +5,9 @@ public class Player : Character
 {   
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private LayerMask GroundLayer;
-
+    [SerializeField] private Kunai KunaiPrefab;
+    [SerializeField] private Transform ThrowPoint;
+    [SerializeField] private GameObject AttackArea;
     
     private float jumpForce = 1500;
     private float speed = 7;
@@ -14,7 +16,7 @@ public class Player : Character
     private bool isJumping;
     private float horizontal;
     private bool isGrounded;
-    private bool isDead = false;
+    private bool isDeath = false;
     
     
     private int Coin = 0;
@@ -79,9 +81,8 @@ public class Player : Character
                 Moving();
             }
             //Khi chạm đất
-            if (rb.linearVelocity.y < 0 && !isGrounded)
+            if (rb.linearVelocity.y < 0)
             {
-                Debug.Log(isGrounded);
                 Fall();
             }
         }
@@ -91,10 +92,10 @@ public class Player : Character
     public override void OnInit()//reset các thông số hoặc đưa về trạng thái ban đầu
     {
         base.OnInit();
-        isDead = false;
         isActioning = false;
         isJumping = false;
         transform.position = savePos;
+        DeactiveAttack();
         ChangeAnim("Idle");
     }
 
@@ -102,6 +103,7 @@ public class Player : Character
     public override void OnDespawn()
     {
         base.OnDespawn();
+        OnInit();
     }
 
     protected override void OnDeath()
@@ -127,13 +129,15 @@ public class Player : Character
         ChangeAnim("Attack");
         isActioning = true;
         Invoke("ResetAction", 0.5f);
-        
+        ActiveAttack();
+        Invoke("DeactiveAttack", 0.5f);
     }
     private void Throw()
     {
         rb.linearVelocity = Vector2.zero;
         ChangeAnim("Throw");
         isActioning = true;
+        Instantiate(KunaiPrefab, ThrowPoint.position, ThrowPoint.rotation);
         Invoke("ResetAction", 0.5f);
     }
     private void ResetAction()
@@ -187,12 +191,21 @@ public class Player : Character
         }
         if (collision.tag == "DeathZone")
         {
-            ChangeAnim("Death");
-            isDead = true;
+            OnDeath();
             Invoke("OnInit", 0.5f);
         }
-
     }
 
+    private void ActiveAttack()
+    {
+        
+        AttackArea.SetActive(true);
+    }
+
+    private void DeactiveAttack()
+    {
+        
+        AttackArea.SetActive(false);
+    }
     
 }

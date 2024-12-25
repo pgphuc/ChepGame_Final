@@ -8,10 +8,10 @@ using Vector3 = UnityEngine.Vector3;
 public class Enemy : Character
 {
     [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private GameObject AttackArea;
     
-    [SerializeField] private float attackRange = 1;
-    
-    private float speed = 10;
+    private float attackRange = 2;
+    public float speed = 3;
     private IState currentState;
     private bool isRight = true;
     private Character target;
@@ -23,6 +23,7 @@ public class Enemy : Character
         {
             currentState.OnExecute(this);
         }
+        DeactiveAttack();
     }
     public override void OnInit()
     {
@@ -32,12 +33,15 @@ public class Enemy : Character
 
     protected override void OnDeath()
     {
+        ChangeState(null);
         base.OnDeath();
     }
 
     public override void OnDespawn()
     {
         base.OnDespawn();
+        Destroy(HealthBar.gameObject);
+        Destroy(gameObject);
     }
 
     public void ChangeState(IState newState)
@@ -84,20 +88,39 @@ public class Enemy : Character
 
     public void Attack()
     {
-        rb.linearVelocity = Vector2.zero;
         ChangeAnim("Attack");
+        ActiveAttack();
+        Invoke("DeactiveAttack", 0.5f);
+    }
+    private void ActiveAttack()
+    {
+        
+        AttackArea.SetActive(true);
+    }
+
+    private void DeactiveAttack()
+    {
+        
+        AttackArea.SetActive(false);
     }
 
     public bool InTargetRange()
     {
-        return Vector2.Distance(target.transform.position, transform.position) <= attackRange;
+        if (target != null && Vector2.Distance(target.transform.position, transform.position) <= attackRange)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("EnemyWall"))
         {
-            Debug.Log("Thoar man dieu k");
+            ChangeDirection(!isRight);
         }
     }
 
